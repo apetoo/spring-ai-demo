@@ -1,13 +1,13 @@
-package cn.apeto.springmcpdemo;
+package cn.apeto.mcp.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringMcpDemoApplication {
+public class McpServerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringMcpDemoApplication.class, args);
+        SpringApplication.run(McpServerApplication.class, args);
     }
 
 }

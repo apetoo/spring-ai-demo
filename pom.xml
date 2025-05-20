@@ -9,10 +9,11 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cn.apeto</groupId>
-    <artifactId>spring-mcp-demo</artifactId>
+    <artifactId>spring-ai-demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>spring-mcp-demo</name>
-    <description>spring-mcp-demo</description>
+    <packaging>pom</packaging>
+    <name>spring-ai-demo</name>
+    <description>spring-ai-demo</description>
     <url/>
     <licenses>
         <license/>
@@ -20,6 +21,10 @@
     <developers>
         <developer/>
     </developers>
+    <modules>
+        <module>mcp-server</module>
+        <module>mcp-client</module>
+    </modules>
     <scm>
         <connection/>
         <developerConnection/>
@@ -48,18 +53,14 @@
             <artifactId>micrometer-tracing-bridge-brave</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-mcp-client-webflux</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-mcp-server-webflux</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.15</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

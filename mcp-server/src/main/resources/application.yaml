@@ -1,1 +1,11 @@
-spring.application.name=mcp-server
+spring:
+  application:
+    name: mcp-server
+  ai:
+    mcp:
+      server:
+        name: webflux-mcp-server
+        version: 1.0.0
+        type: ASYNC
+        instructions: "接口文档"
+

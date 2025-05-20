@@ -1,2 +1,26 @@
-spring.application.name=mcp-client
 
+spring:
+  application:
+    name: mcp-client
+  ai:
+    deepseek:
+      base-url: https://api.deepseek.com
+      api-key: sk-e94c3116427644c497d0f456657a0780
+      chat:
+        options:
+          model: deepseek-chat
+    mcp:
+      client:
+        version: 1.0.0
+        type: SYNC  # or ASYNC for reactive applications
+        toolcallback:
+          enabled: true
+        sse:
+          connections:
+            webflux-mcp-server:
+              url: http://localhost:8080
+
+        name: ${spring.application.name}
+        enabled: true
+server:
+  port: 8081

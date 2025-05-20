@@ -1,13 +1,48 @@
 package cn.apeto.mcp.client.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.prompt.SystemPromptTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+
+import java.util.List;
 
 /**
  * @author apeto
  * @create 2025/5/20 18:44
  */
+@Slf4j
+@RequiredArgsConstructor
 @RestController
 public class ChatController {
+
+    private final ChatClient chatClient;
+    @Value("classpath:/prompts/system-message.st")
+    private Resource systemResource;
+
+    @GetMapping(value = "/generate", produces = "text/event-stream")
+    public Flux<String> generate(@RequestParam String message) {
+
+        Message userMessage = new UserMessage(message);
+        SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(systemResource);
+        Message systemMessage = systemPromptTemplate.createMessage();
+        return chatClient.prompt(new Prompt(List.of(userMessage, systemMessage)))
+                .stream()
+                .chatResponse()
+                .mapNotNull(chatResponse -> chatResponse.getResult().getOutput().getText())
+                .doOnComplete(() -> {
+                    log.info("请求结束");
+                });
+    }
 
 
 }

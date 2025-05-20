@@ -1,6 +1,6 @@
-package cn.apeto.springmcpdemo.config;
+package cn.apeto.mcp.server.config;
 
-import cn.apeto.springmcpdemo.tools.ApiDocumentationTools;
+import cn.apeto.mcp.server.tools.ApiDocumentationTools;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.context.annotation.Bean;
@@ -17,4 +17,5 @@ public class ToolsConfig {
     public ToolCallbackProvider weatherTools(ApiDocumentationTools apiDocumentationTools) {
         return MethodToolCallbackProvider.builder().toolObjects(apiDocumentationTools).build();
     }
+
 }
