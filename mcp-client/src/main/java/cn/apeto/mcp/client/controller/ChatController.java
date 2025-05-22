@@ -3,10 +3,13 @@ package cn.apeto.mcp.client.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,9 +28,12 @@ import java.util.List;
 @RestController
 public class ChatController {
 
-    private final ChatClient chatClient;
     @Value("classpath:/prompts/system-message.st")
     private Resource systemResource;
+
+    private final ChatClient chatClient;
+    private final ChatMemory chatMemory;
+
 
     @GetMapping(value = "/generate", produces = "text/event-stream")
     public Flux<String> generate(@RequestParam String message) {
@@ -36,6 +42,7 @@ public class ChatController {
         SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(systemResource);
         Message systemMessage = systemPromptTemplate.createMessage();
         return chatClient.prompt(new Prompt(List.of(userMessage, systemMessage)))
+                .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
                 .stream()
                 .chatResponse()
                 .mapNotNull(chatResponse -> chatResponse.getResult().getOutput().getText())
