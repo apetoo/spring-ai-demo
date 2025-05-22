@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 聊天助手</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js" integrity="sha512-SYfDUYPg5xspsG6OOpXU366G8SZsdHOhqk/icdrYJ2E/WKZxPxze7d2HD3AyXpT7U22PZ5y74xRpqZ6A2bJ+kQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Optional: DOMPurify for sanitizing Markdown output -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.3/purify.min.js"></script> -->
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 700px;
+            height: 90vh;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+            display: flex; 
+            flex-direction: column;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+            line-height: 1.6;
+        }
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .ai-message {
+            background-color: #e9ecef;
+            color: #333;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+        /* Styling for Markdown content */
+        .ai-message h1, .ai-message h2, .ai-message h3, .ai-message h4, .ai-message h5, .ai-message h6 {
+            margin-top: 0.8em;
+            margin-bottom: 0.4em;
+        }
+        .ai-message p {
+            margin-bottom: 0.5em;
+        }
+        .ai-message pre {
+            background-color: #2d2d2d; /* Darker background for code blocks */
+            color: #f8f8f2;           /* Light text for code blocks (Solarized-like) */
+            padding: 1em;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 0.9em;
+        }
+        .ai-message code:not(pre code) { /* Inline code */
+            background-color: #f0f0f0;
+            color: #c7254e; /* Bootstrap-like inline code color */
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 85%;
+        }
+        .ai-message ul, .ai-message ol {
+            padding-left: 25px;
+            margin-bottom: 0.5em;
+        }
+        .ai-message blockquote {
+            border-left: 4px solid #007bff;
+            padding-left: 15px;
+            margin-left: 0;
+            color: #555;
+            font-style: italic;
+        }
+        .ai-message table {
+            border-collapse: collapse;
+            margin-bottom: 1em;
+            width: auto;
+        }
+        .ai-message th, .ai-message td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .ai-message th {
+            background-color: #f7f7f7;
+        }
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            background-color: #f8f9fa;
+        }
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 1em;
+        }
+        .chat-input input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+        }
+        .chat-input button:hover {
+            background-color: #0056b3;
+        }
+        .typing-indicator-container.ai-message {
+            background-color: transparent; /* Make indicator container background transparent */
+            padding-top: 5px; /* Adjust padding for alignment */
+            padding-bottom: 5px;
+        }
+        .typing-indicator-container .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+            background-color: #6c757d; /* Softer color for typing indicator */
+            border-radius: 50%;
+            animation: blink 1.4s infinite both;
+        }
+        .typing-indicator-container .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator-container .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes blink {
+            0% { opacity: 0.2; }
+            20% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            AI 聊天助手
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be appended here -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="输入消息..." autocomplete="off">
+            <button id="sendButton">发送</button>
+        </div>
+    </div>
+
+    <script>
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const chatMessages = document.getElementById('chatMessages');
+        const md = window.markdownit(); // Initialize markdown-it
+
+        let currentAiMessageElement = null;
+        let accumulatedAiResponse = "";
+        let typewriterBuffer = [];
+        let typewriterTimeout = null;
+        const TYPEWRITER_DELAY = 20; // ms, adjust for speed
+        let eventSource = null; 
+        let typingIndicatorElement = null;
+
+        sendButton.addEventListener('click', handleSendMessage);
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) { // Send on Enter, allow Shift+Enter for newline
+                e.preventDefault(); // Prevent default Enter behavior (e.g., form submission)
+                handleSendMessage();
+            }
+        });
+
+        function handleSendMessage() {
+            const messageText = messageInput.value.trim();
+            if (messageText === '') return;
+
+            if (eventSource && eventSource.readyState !== EventSource.CLOSED) {
+                eventSource.close();
+            }
+            clearTimeout(typewriterTimeout);
+            typewriterBuffer = [];
+
+            displayUserMessage(messageText);
+            messageInput.value = '';
+            
+            currentAiMessageElement = null;
+            accumulatedAiResponse = "";
+
+            typingIndicatorElement = displayTypingIndicator();
+
+            eventSource = new EventSource(`/generate?message=${encodeURIComponent(messageText)}`);
+
+            eventSource.onopen = function() {
+                console.log('SSE connection opened.');
+            };
+
+            eventSource.onmessage = function(event) {
+                removeTypingIndicator();
+                
+                if (!currentAiMessageElement) {
+                    currentAiMessageElement = createMessageElement('ai-message');
+                    chatMessages.appendChild(currentAiMessageElement);
+                }
+                
+                const chunk = event.data;
+                accumulatedAiResponse += chunk;
+                typewriterBuffer.push(chunk);
+                
+                if (!typewriterTimeout) {
+                    processTypewriterBuffer();
+                }
+            };
+
+            eventSource.onerror = function(err) {
+                console.error('SSE error or stream ended:', err);
+                removeTypingIndicator();
+                
+                clearTimeout(typewriterTimeout);
+                typewriterTimeout = null;
+
+                if (currentAiMessageElement && typewriterBuffer.length > 0) {
+                    currentAiMessageElement.textContent += typewriterBuffer.join('');
+                    typewriterBuffer = [];
+                }
+
+                if (currentAiMessageElement && accumulatedAiResponse) {
+                    renderMarkdown(accumulatedAiResponse, currentAiMessageElement);
+                } else if (accumulatedAiResponse) { 
+                    currentAiMessageElement = createMessageElement('ai-message');
+                    chatMessages.appendChild(currentAiMessageElement);
+                    renderMarkdown(accumulatedAiResponse, currentAiMessageElement);
+                } else if (!document.querySelector('.message.ai-message:last-child:not(.typing-indicator-container)')) {
+                    // Only display error if no actual AI message part was shown
+                    const errorElement = createMessageElement('ai-message');
+                    errorElement.textContent = '抱歉，获取回复时发生错误。';
+                    chatMessages.appendChild(errorElement);
+                }
+                
+                scrollToBottom();
+                if (eventSource) eventSource.close();
+            };
+        }
+
+        function processTypewriterBuffer() {
+            if (typewriterBuffer.length > 0 && currentAiMessageElement) {
+                currentAiMessageElement.textContent += typewriterBuffer.shift();
+                scrollToBottom();
+                typewriterTimeout = setTimeout(processTypewriterBuffer, TYPEWRITER_DELAY);
+            } else {
+                typewriterTimeout = null;
+            }
+        }
+
+        function createMessageElement(className) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', className);
+            return messageElement;
+        }
+
+        function displayUserMessage(text) {
+            const userMessageElement = createMessageElement('user-message');
+            userMessageElement.textContent = text;
+            chatMessages.appendChild(userMessageElement);
+            scrollToBottom();
+        }
+
+        function displayTypingIndicator() {
+            removeTypingIndicator(); // Remove any existing one first
+            const indicatorContainer = createMessageElement('ai-message');
+            indicatorContainer.classList.add('typing-indicator-container');
+            const indicator = document.createElement('div');
+            indicator.classList.add('typing-indicator');
+            indicator.innerHTML = '<span></span><span></span><span></span>';
+            indicatorContainer.appendChild(indicator);
+            chatMessages.appendChild(indicatorContainer);
+            scrollToBottom();
+            return indicatorContainer;
+        }
+
+        function removeTypingIndicator(){
+            if (typingIndicatorElement && typingIndicatorElement.parentNode) {
+                typingIndicatorElement.remove();
+                typingIndicatorElement = null;
+            }
+        }
+
+        function renderMarkdown(markdownText, element) {
+            if (element && typeof md !== 'undefined' && md.render) {
+                // Consider DOMPurify for production: element.innerHTML = DOMPurify.sanitize(md.render(markdownText));
+                element.innerHTML = md.render(markdownText);
+            } else if (element) {
+                element.textContent = markdownText; // Fallback
+            }
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Initial greeting (optional)
+        (function() {
+            const initialGreeting = "你好！我是AI聊天助手，有什么可以帮助你的吗？";
+            const aiGreetingElement = createMessageElement('ai-message');
+            chatMessages.appendChild(aiGreetingElement);
+            renderMarkdown(initialGreeting, aiGreetingElement);
+            scrollToBottom();
+        })();
+
+    </script>
+</body>
+</html>
