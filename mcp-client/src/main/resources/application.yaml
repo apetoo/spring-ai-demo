@@ -24,3 +24,18 @@ spring:
         enabled: true
 server:
   port: 8081
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: DEBUG
+  file:
+    path: ${user.dir}/logs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0

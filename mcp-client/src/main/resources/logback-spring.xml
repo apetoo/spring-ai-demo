@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="LOG_PATH" source="logging.file.path"/>
+    <springProperty scope="context" name="LOG_FILE_NAME" source="spring.application.name"/>
+
+    <timestamp key="bySecond" datePattern="yyyy-MM-dd HH:mm:ss" timeZone="Asia/Shanghai"/>
+
+    <!-- 控制台输出设置 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- 日志输出格式，包含TraceId和SpanId -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%X{traceId:-},%X{spanId:-}] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 按天滚动文件输出设置 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${LOG_FILE_NAME}.log</file>
+        <encoder>
+            <!-- 日志输出格式，包含TraceId和SpanId -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%X{traceId:-},%X{spanId:-}] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 保留日志天数 -->
+            <maxHistory>30</maxHistory>
+            <!-- 日志文件上限大小，达到这个值将滚动日志 -->
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 异步日志 -->
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <appender-ref ref="FILE" />
+    </appender>
+
+    <!-- 日志级别设置 -->
+    <root level="INFO">
+        <!-- 生产环境通常不输出到控制台 -->
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="ASYNC" />
+    </root>
+
+    <!-- 为特定包设置不同的日志级别 -->
+    <!-- <logger name="com.yourcompany.yourapp" level="DEBUG" /> -->
+
+</configuration>

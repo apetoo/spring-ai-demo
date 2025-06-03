@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
@@ -41,8 +43,11 @@ public class ChatController {
         Message userMessage = new UserMessage(message);
         SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(systemResource);
         Message systemMessage = systemPromptTemplate.createMessage();
+        SimpleLoggerAdvisor loggerAdvisor = SimpleLoggerAdvisor.builder().build();
+        MessageChatMemoryAdvisor chatMemoryAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
+
         return chatClient.prompt(new Prompt(List.of(userMessage, systemMessage)))
-                .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+                .advisors(chatMemoryAdvisor, loggerAdvisor)
                 .stream()
                 .chatResponse()
                 .mapNotNull(chatResponse -> chatResponse.getResult().getOutput().getText())
@@ -51,5 +56,11 @@ public class ChatController {
                 });
     }
 
+
+    @PostMapping("/test")
+    public String test() {
+        log.info("测试日志");
+        return "test";
+    }
 
 }
