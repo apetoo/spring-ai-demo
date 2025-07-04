@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 public class ToolsConfig {
 
     @Bean
-    public ToolCallbackProvider weatherTools(ApiDocumentationTools apiDocumentationTools) {
+    public ToolCallbackProvider apiDocumentation(ApiDocumentationTools apiDocumentationTools) {
         return MethodToolCallbackProvider.builder().toolObjects(apiDocumentationTools).build();
     }
 

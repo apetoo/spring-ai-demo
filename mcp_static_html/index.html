@@ -17,7 +17,7 @@
                 <p>重塑代码世界的革新引擎</p>            </div>
             <div class="nav-links">
                 <a href="#ai-concepts" class="nav-link">快速了解</a>
-                <a href="#definition" class="nav-link">MCP定义</a>
+                <a href="#definition" class="nav-link">tools发展史</a>
                 <a href="#mechanism" class="nav-link">核心机制</a>
                 <a href="#tools" class="nav-link">开发者工具</a>
                 <a href="#practical" class="nav-link">实战动手</a>
@@ -47,8 +47,33 @@
             <div class="hero-bg"></div>
             <div class="container">
                 <h1 class="hero-title">智能编译与 <span>MCP</span></h1>
-                <h2 class="hero-subtitle">重塑代码世界的革新引擎 <p>作者：万明宇</p></h2>
-                <a href="#definition" class="hero-btn">开始探索</a>
+                <h2 class="hero-subtitle">重塑代码世界的革新引擎</h2>
+                
+                <!-- 自我介绍模块 -->
+                <div class="author-intro">
+                    <div class="author-card">
+                        <div class="author-avatar">
+                            <div class="avatar-placeholder">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="author-info">
+                            <h3 class="author-name">万明宇</h3>
+                            <p class="author-title">金融科技中心-机构生态平台</p>
+                            <div class="author-tags">
+                                <span class="tag">Java研发工程师</span>
+                            </div>
+                            <p class="author-desc">
+                                23年初接触AI并自研商业版私有化部署GeniusAI和Nova-AI，私有化部署400+客户。对AI应用开发及前沿技术有浓厚兴趣。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="#ai-concepts" class="hero-btn">开始探索</a>
                 <div class="scroll-indicator">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19 14l-7 7m0 0l-7-7m7 7V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -64,25 +89,89 @@
                     <h2>快速了解</h2>
                     <div class="section-divider"></div>
                 </div>
+                
                 <div class="concept-block">
-                    <p>这里将介绍 AI Agent 的概念，以及大型语言模型如何通过 Function Call 或 Tools 与外部世界交互。</p>
-                    <!-- 更多内容可以在这里添加 -->
+                    <div class="concept-header">
+                        <span class="concept-number">01</span>
+                        <h3>定义与起源</h3>
+                    </div>
+                    <p>模型上下文协议（<a href="https://modelcontextprotocol.io/">MCP</a>）是<a href="https://www.anthropic.com/">Anthropic</a>于2024年11月所推动的一项开放标准，目的是为大型语言模型应用提供一个标准化接口，使其能够连接外部数据源和工具，并与其交互。</p>
+                </div>
+                
+                <div class="concept-block">
+                    <div class="concept-header">
+                        <span class="concept-number">02</span>
+                        <h3>简单理解</h3>
+                    </div>
+                    <p>把MCP理解成像是一个AI世界的通用翻译官，让AI模型能够与各种各样的外部工具"对话"。它建立了一种标准化的通信方式，使不同的AI模型和工具能够无缝协作。</p>
+                </div>
+                
+                <div class="concept-block">
+                    <div class="concept-header">
+                        <span class="concept-number">03</span>
+                        <h3>技术实现</h3>
+                    </div>
+                    <p>模型上下文协议的技术实现旨在为大型语言模型应用与外部数据源和工具之间的无缝集成提供标准化的方法。协议基于<a href="https://www.jsonrpc.org/specification">JSON-RPC 2.0</a>消息格式，建立状态连接，并支持服务器和客户端的能力协商。</p>
+                </div>
+                
+                <div class="concept-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h4>统一标准</h4>
+                        <p>提供跨平台、跨模型的统一接口标准，降低开发和集成成本</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h4>高效交互</h4>
+                        <p>优化模型与工具间的通信效率，减少延迟和资源消耗</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h4>安全可控</h4>
+                        <p>内置权限管理和安全机制，确保工具调用的安全性和可控性</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h4>易于扩展</h4>
+                        <p>模块化设计使开发者能够轻松添加新工具和功能，适应不断变化的需求</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- MCP定义部分 -->
+
+        <!-- 大模型工具的发展史 -->
         <section id="definition" class="section">
-            <div class="container">
+             <div class="container">
                 <div class="section-header">
-                    <h2>MCP的定义</h2>
+                    <h2>大模型工具的发展史</h2>
                     <div class="section-divider"></div>
                 </div>
                 <div class="cards-container">
-                    <div class="flip-card">
+                    <div class="card-wrapper">
+                        <div class="flip-card">
                         <div class="flip-card-inner">
                             <div class="flip-card-front">
-                                <h3>什么是MCP?</h3>
+                                <h3>1.0 时代：提示词驱动的工具调用</h3>
                                 <div class="card-icon">
                                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -91,16 +180,26 @@
                                 <div class="card-hint"></div>
                             </div>
                             <div class="flip-card-back">
-                                <h3>什么是MCP?</h3>
-                                <p>MCP（Model Context Protocol）是一种开放的技术协议，旨在标准化大型语言模型（LLM）与外部工具和服务的交互方式。可以把MCP理解成像是一个AI世界的通用翻译官，让AI模型能够与各种各样的外部工具"对话"。</p>
+                                <h3>1.0时代</h3>
+                                <p>通过自然语言提示词（Prompt）引导大模型调用工具。</p>
+
+                                <p>工具调用依赖模型对语言的理解，缺乏标准化和稳定性。</p>
+
+                                <p>不可控性高：返回结果格式不稳定，难以解析和复用。</p>
                                 <div class="back-hint"></div>
+
                             </div>
                         </div>
+                        </div>
+                        <div class="image-container">
+                            <img src="images/no_mcp.png" alt="1.0时代示例图片" class="card-image">
+                        </div>
                     </div>
-                    <div class="flip-card">
+                    <div class="card-wrapper">
+                        <div class="flip-card">
                         <div class="flip-card-inner">
                             <div class="flip-card-front">
-                                <h3>为什么需要MCP？</h3>
+                                <h3>2.0 时代：Function Calling 标准化调用</h3>
                                 <div class="card-icon">
                                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -109,16 +208,24 @@
                                 <div class="card-hint"></div>
                             </div>
                             <div class="flip-card-back">
-                                <h3>为什么需要MCP？</h3>
-                                <p>在MCP出现之前，AI工具调用面临两大痛点： 第一是接口碎片化：每个LLM使用不同的指令格式，每个工具API也有独特的数据结构，开发者需要为每个组合编写定制化连接代码；第二是开发低效：这种"一对一翻译"模式成本高昂且难以扩展，就像为每个外国客户雇佣专属翻译。</p>
+                                <h3>2.0 时代：Function Calling 标准化调用</h3>
+                                <p>自动进行格式校验和纠错重试，提升可靠性。</p>
+                                <p>减少对 token 的浪费，降低调用成本。</p>
+                                <p>提高开发效率，便于集成和调试。</p>
                                 <div class="back-hint"></div>
+
                             </div>
                         </div>
+                        </div>
+                        <div class="image-container">
+                            <img src="images/image1.png" alt="2.0时代示例图片" class="card-image">
+                        </div>
                     </div>
-                    <div class="flip-card">
+                    <div class="card-wrapper">
+                        <div class="flip-card">
                         <div class="flip-card-inner">
                             <div class="flip-card-front">
-                                <h3>和FunctionCall有什么区别?</h3>
+                                <h3>3.0 时代：MCP 的出现 多厂商、多工具统一 </h3>
                                 <div class="card-icon">
                                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -127,17 +234,16 @@
                                 <div class="card-hint"></div>
                             </div>
                             <div class="flip-card-back">
-                                <h3>和FunctionCall有什么区别? 
-                                    <span class="tooltip-trigger">
-                                        ?
-                                        <span class="tooltip-content">
-                                            MCP更侧重于开发工作流的深度集成和协议的完整性，而FunctionCall更像是一个通用的结构化输出工具。
-                                        </span>
-                                    </span>
-                                </h3>
-                                <p>MCP与FunctionCall虽然都是结构化AI输出的方法，但在设计理念、应用场景和功能特性上有显著差异。MCP是一个完整的协议体系，不仅关注输出格式，还包括整个交互流程、上下文管理、错误处理和反馈循环。它专为软件开发环境设计，关注代码生成、代码理解和开发工作流集成，是FunctionCall的进化和扩展。</p>
+                                <h3>3.0 时代：MCP 的出现 多厂商、多工具统一</h3>
+                                <p>各厂商 Function Calling 接口不统一，集成成本高。</p>
+                                <p>相同工具在不同平台重复开发，缺乏复用机制。</p>
                                 <div class="back-hint"></div>
+
                             </div>
+                        </div>
+                        </div>
+                        <div class="image-container">
+                            <img src="images/WX20250630-135410@2x.png" alt="3.0时代示例图片" class="card-image">
                         </div>
                     </div>
                 </div>
@@ -161,21 +267,21 @@
                             <div class="architecture-boxes">
                                 <div class="architecture-box">
                                     <h4>Host层</h4>
-                                    <p>基础设施层，负责提供计算资源和运行环境，管理资源分配和安全保障。</p>
+                                    <p>如 Claude Desktop、IDE 或 AI 工具，希望通过 MCP 访问数据的程序</p>
                                 </div>
                                 <div class="architecture-box">
                                     <h4>Client层</h4>
-                                    <p>开发者直接交互的界面，提供用户交互、上下文收集和结果呈现。</p>
+                                    <p>维护与服务器一对一连接的协议客户端</p>
                                 </div>
                                 <div class="architecture-box">
                                     <h4>Server层</h4>
-                                    <p>核心智能层，包含AI模型、上下文处理器和代码优化器等关键组件。</p>
+                                    <p>轻量级程序，通过标准的 Model Context Protocol 提供特定能力</p>
                                 </div>
                             </div>
                         </div>
                         <div class="mechanism-image">
                             <img src="images/image.png" alt="相关图片1" class="img-shadow additional-image">
-                            <img src="images/mcp_architecture.png" alt="MCP Host-Client-Server架构" class="img-shadow">
+                             <img src="images/mcp001.png" alt="MCP Host-Client-Server架构" class="img-shadow">
                         </div>
                     </div>
                 </div>
@@ -185,75 +291,27 @@
                     <h3 class="mechanism-title">MCP的工作原理</h3>
                     <div class="mechanism-content reverse">
                         <div class="mechanism-image">
-                            <img src="images/image1.png" alt="相关图片2" class="img-shadow additional-image">
+<!--                            <img src="images/image1.png" alt="相关图片2" class="img-shadow additional-image">-->
                             <img src="images/mcp_workflow_diagram.jpeg" alt="MCP工作原理流程图" class="img-shadow">
                         </div>
                         <div class="mechanism-text">
-                            <p>MCP的工作原理基于一个精心设计的请求-响应循环，结合了上下文感知、智能代码生成和反馈学习机制。</p>
+                            <p>MCP作为一个开放的通信协议，定义了AI应用（Host）、MCP客户端（Client）和外部工具服务（Server）之间的标准化交互方式。</p>
                             <div class="workflow-steps">
                                 <div class="workflow-step">
-                                    <h4>请求初始化</h4>
-                                    <p>开发者触发请求，Client自动收集上下文，并将需求格式化为标准MCP请求。</p>
+                                    <h4>协议握手</h4>
+                                    <p>Client与Server建立连接，交换协议版本信息和能力声明，确保双方兼容性。</p>
                                 </div>
                                 <div class="workflow-step">
-                                    <h4>服务器处理</h4>
-                                    <p>Server解析请求，分析上下文，调用AI模型生成代码，并进行验证与优化。</p>
+                                    <h4>资源发现</h4>
+                                    <p>Client查询Server提供的工具列表、资源类型和可用功能，建立完整的能力映射。</p>
                                 </div>
                                 <div class="workflow-step">
-                                    <h4>客户端呈现</h4>
-                                    <p>Client解析响应，以适当方式向开发者展示结果，并提供交互选项。</p>
+                                    <h4>工具调用</h4>
+                                    <p>Host通过Client发送标准化的工具调用请求，Server执行相应操作并返回结构化结果。</p>
                                 </div>
                                 <div class="workflow-step">
-                                    <h4>反馈循环</h4>
-                                    <p>开发者提供反馈，系统记录并分析，用于优化当前会话和长期模型改进。</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- MCP部署模式 -->
-                <div class="mechanism-block">
-                    <h3 class="mechanism-title">MCP部署模式</h3>
-                    <div class="mechanism-content">
-                        <div class="mechanism-text full-width">
-                            <p>MCP支持多种部署模式，以适应不同的使用场景、安全需求和性能考虑。每种部署模式都有其独特的优势和适用场景。</p>
-                            <div class="deployment-modes">
-                                <div class="deployment-mode">
-                                    <div class="mode-icon">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </div>
-                                    <h4>云端部署</h4>
-                                    <p>Server层和Host层部署在云服务提供商基础设施上，Client层集成在本地环境中。适合大型团队共享AI资源。</p>
-                                </div>
-                                <div class="deployment-mode">
-                                    <div class="mode-icon">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </div>
-                                    <h4>本地部署</h4>
-                                    <p>所有三层都部署在开发者本地环境中，形成自包含系统。适合处理高度敏感的代码和数据。</p>
-                                </div>
-                                <div class="deployment-mode">
-                                    <div class="mode-icon">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </div>
-                                    <h4>混合部署</h4>
-                                    <p>计算密集型模型推理部署在云端，敏感数据处理和上下文分析部署在本地。平衡性能与隐私。</p>
-                                </div>
-                                <div class="deployment-mode">
-                                    <div class="mode-icon">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </div>
-                                    <h4>边缘部署</h4>
-                                    <p>轻量级MCP组件部署在靠近开发者的边缘节点上。适合分布式团队和对延迟敏感的场景。</p>
+                                    <h4>上下文管理</h4>
+                                    <p>协议支持会话状态维护和上下文传递，确保多轮交互的连贯性和数据一致性。</p>
                                 </div>
                             </div>
                         </div>
@@ -274,115 +332,86 @@
                 <div class="tools-block">
                     <h3 class="tools-title">主流IDE与工作流集成</h3>
                     <p class="tools-intro">MCP协议的一个重要优势是其与现代开发环境的无缝集成能力。通过与主流IDE和开发工具的深度整合，MCP为开发者提供了自然且高效的AI辅助编程体验。</p>
-                    
+
                     <div class="ide-cards">
                         <!-- VS Code集成 -->
                         <div class="ide-card">
                             <div class="ide-header">
-                                <img src="images/vscode_logo.png" alt="Visual Studio Code" class="ide-logo">
-                                <h4>Visual Studio Code集成</h4>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="ide-logo">
+                                    <path d="M17.5 0L6.5 0C2.91 0 0 2.91 0 6.5v11C0 21.09 2.91 24 6.5 24h11c3.59 0 6.5-2.91 6.5-6.5v-11C24 2.91 21.09 0 17.5 0z" fill="#007ACC"/>
+                                    <path d="M17.5 2.5L6.5 2.5C4.29 2.5 2.5 4.29 2.5 6.5v11c0 2.21 1.79 4 4 4h11c2.21 0 4-1.79 4-4v-11c0-2.21-1.79-4-4-4z" fill="#007ACC"/>
+                                    <path d="M18.5 5.5L12 12l6.5 6.5V5.5z" fill="white"/>
+                                    <path d="M5.5 8.5L12 12l-6.5 3.5V8.5z" fill="white"/>
+                                </svg>
+                                <h4>Visual Studio Code</h4>
                             </div>
-                            <p>作为当今最流行的代码编辑器之一，Visual Studio Code对MCP提供了全面的支持。</p>
-                            <ul class="feature-list">
-                                <li>MCP扩展提供直观界面，通过简单快捷键触发功能</li>
-                                <li>内联代码建议直接显示，一键接受或修改</li>
-                                <li>自动收集项目结构和依赖信息，确保AI理解上下文</li>
-                                <li>支持所有VS Code原生支持的编程语言</li>
-                            </ul>
+                            <p class="ide-description">通过官方MCP扩展，VS Code提供完整的AI辅助编程体验，支持智能代码补全、重构建议和实时错误检测。</p>
+                        </div>
+                        
+                        <!-- Cursor集成 -->
+                        <div class="ide-card">
+                            <div class="ide-header">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="ide-logo">
+                                    <rect width="24" height="24" rx="4" fill="#000000"/>
+                                    <path d="M6 6h12v2H6V6zm0 4h12v2H6v-2zm0 4h8v2H6v-2z" fill="#ffffff"/>
+                                    <circle cx="18" cy="16" r="2" fill="#00D4FF"/>
+                                </svg>
+                                <h4>Cursor</h4>
+                            </div>
+                            <p class="ide-description">AI原生代码编辑器，内置强大的AI助手，支持自然语言编程和智能代码生成，提供流畅的AI编程体验。</p>
+                        </div>
+                        
+                        <!-- Windsurf集成 -->
+                        <div class="ide-card">
+                            <div class="ide-header">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="ide-logo">
+                                    <defs>
+                                        <linearGradient id="windsurfGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#00C9FF;stop-opacity:1" />
+                                            <stop offset="100%" style="stop-color:#92FE9D;stop-opacity:1" />
+                                        </linearGradient>
+                                    </defs>
+                                    <rect width="24" height="24" rx="4" fill="url(#windsurfGradient)"/>
+                                    <path d="M8 6l8 6-8 6V6z" fill="white"/>
+                                </svg>
+                                <h4>Windsurf</h4>
+                            </div>
+                            <p class="ide-description">首个代理式IDE，配备Cascade AI助手，具备深度代码库理解能力和实时协作功能，重新定义AI编程体验。</p>
+                        </div>
+                        
+                        <!-- Trae集成 -->
+                        <div class="ide-card">
+                            <div class="ide-header">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" class="ide-logo">
+                                    <rect width="24" height="24" rx="4" fill="#FF6B35"/>
+                                    <circle cx="12" cy="8" r="2" fill="white"/>
+                                    <path d="M8 12h8v2H8v-2zm2 4h4v2h-4v-2z" fill="white"/>
+                                    <path d="M6 18h12v2H6v-2z" fill="white" opacity="0.7"/>
+                                </svg>
+                                <h4>Trae AI</h4>
+                            </div>
+                            <p class="ide-description">自适应AI开发环境，通过智能代理自动化重复任务，提供对话式编程交互和实时代码优化建议。</p>
                         </div>
                         
                         <!-- JetBrains系列集成 -->
                         <div class="ide-card">
                             <div class="ide-header">
                                 <img src="images/pycharm_logo.svg" alt="PyCharm" class="ide-logo">
-                                <h4>JetBrains系列集成</h4>
+                                <h4>JetBrains系列</h4>
                             </div>
-                            <p>JetBrains全家桶（IntelliJ IDEA、PyCharm、WebStorm等）通过MCP插件提供了强大的AI编程辅助。</p>
-                            <ul class="feature-list">
-                                <li>结合强大的代码分析能力，提供更准确的代码补全</li>
-                                <li>识别现有代码中的优化机会并提供重构建议</li>
-                                <li>自动为新功能生成单元测试，提高代码质量</li>
-                                <li>利用项目索引能力，理解复杂项目的全貌</li>
-                            </ul>
+                            <p class="ide-description">支持IntelliJ IDEA、PyCharm、WebStorm等全系列IDE，提供企业级AI开发工具集成和专业框架支持。</p>
                         </div>
-                    </div>
-
-                    <div class="other-tools">
-                        <div class="tool-item">
-                            <h4>Eclipse集成</h4>
-                            <p>对于企业级Java开发，Eclipse的MCP插件提供了专业支持，包括与Maven、Gradle等构建工具的深度集成和企业级框架的优化支持。</p>
-                        </div>
-                        <div class="tool-item">
-                            <h4>命令行工具</h4>
-                            <p>对于喜欢终端工作流的开发者，MCP提供了功能强大的CLI工具，不依赖特定IDE，可在任何终端环境中使用，支持批量处理和管道操作。</p>
-                        </div>
-                        <div class="tool-item">
-                            <h4>浏览器扩展</h4>
-                            <p>为支持基于Web的开发环境，MCP提供了浏览器扩展，直接在GitHub界面上获取代码建议，与CodeSandbox、Replit等在线IDE集成。</p>
+                        <div class="ide-card">
+                            <div class="ide-header">
+                                <img src="images/github_copilot_logo.svg" alt="GitHub Copilot" class="ide-logo">
+                                <h4>GitHub Copilot</h4>
+                            </div>
+                            <p class="ide-description">GitHub Copilot是由GitHub与OpenAI合作开发的一款革命性的智能代码补全和生成工具，旨在帮助开发人员更高效、更准确、更快地编写代码</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- 工作流集成 -->
-                <div class="tools-block">
-                    <h3 class="tools-title">工作流集成</h3>
-                    <p class="tools-intro">MCP不仅与开发工具集成，还深度融入现代软件开发工作流，从代码审查到CI/CD，从团队协作到学习培训。</p>
-                    
-                    <div class="workflow-grid">
-                        <div class="workflow-item">
-                            <h4>代码审查增强</h4>
-                            <p>在提交代码前自动检查潜在问题，分析Pull Request提供改进建议，确保新代码与项目风格一致。</p>
-                        </div>
-                        <div class="workflow-item">
-                            <h4>CI/CD集成</h4>
-                            <p>为新功能自动生成测试，分析构建过程提供优化建议，在部署前检查潜在的兼容性和安全问题。</p>
-                        </div>
-                        <div class="workflow-item">
-                            <h4>团队协作工具</h4>
-                            <p>捕获和分享团队编码知识，帮助新成员快速理解项目，确保代码变更时相关文档同步更新。</p>
-                        </div>
-                        <div class="workflow-item">
-                            <h4>学习与培训</h4>
-                            <p>根据开发者习惯提供定制化学习建议，在编码过程中提供实时指导，帮助探索和掌握新技术。</p>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- 生态系统扩展 -->
-                <div class="tools-block">
-                    <h3 class="tools-title">生态系统扩展</h3>
-                    <p class="tools-intro">MCP的开放协议特性催生了丰富的生态系统，包括专业领域插件、企业定制解决方案和社区贡献。</p>
-                    
-                    <div class="ecosystem-cards">
-                        <div class="ecosystem-card">
-                            <div class="eco-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </div>
-                            <h4>专业领域插件</h4>
-                            <p>针对特定行业或应用领域的MCP扩展，如金融、医疗、游戏开发等，以及为React、Spring Boot等流行框架优化的工具。</p>
-                        </div>
-                        <div class="ecosystem-card">
-                            <div class="eco-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <h4>企业定制解决方案</h4>
-                            <p>企业可以将MCP与内部训练的AI模型集成，确保生成的代码符合行业规范和公司政策，并连接企业内部知识库。</p>
-                        </div>
-                        <div class="ecosystem-card">
-                            <div class="eco-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <h4>社区贡献</h4>
-                            <p>社区开发的MCP扩展和工具，常见编程任务的模板集合，以及MCP使用经验和最佳实践的分享。</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -402,16 +431,16 @@
                             <p>Spring AI框架提供了对MCP的原生支持，使Java开发者能够轻松集成和扩展MCP功能。以下是使用Spring AI创建自定义MCP工具的示例。</p>
                             <div class="steps-container">
                                 <div class="step-item">
-                                    <h4>步骤1: 添加依赖</h4>
-                                    <p>首先在项目的pom.xml或build.gradle中添加Spring AI和MCP相关依赖。</p>
+                                    <h4>步骤1: 创建mcp server项目</h4>
+                                    <p>添加spring ai 及 mcp server相关依赖</p>
                                 </div>
                                 <div class="step-item">
-                                    <h4>步骤2: 创建MCP工具类</h4>
+                                    <h4>步骤2: 编写mcp工具</h4>
                                     <p>使用@MCP注解创建自定义工具类，定义工具的名称、参数和执行逻辑。</p>
                                 </div>
                                 <div class="step-item">
-                                    <h4>步骤3: 集成到服务中</h4>
-                                    <p>创建服务类，使用MCPClient发送请求并处理响应，将MCP工具集成到应用流程中。</p>
+                                    <h4>步骤3: 创建cmp client项目</h4>
+                                    <p>使用MCPClient发送请求并处理响应，将MCP工具集成到应用流程中。</p>
                                 </div>
                                 <div class="step-item">
                                     <h4>步骤4: 配置和使用</h4>
@@ -426,90 +455,53 @@
                                     <span></span>
                                     <span></span>
                                 </div>
-                                <div class="code-title">MCPToolService.java</div>
+                                <div class="code-title">ChatController.java</div>
                             </div>
                             <pre class="code-block"><code class="language-java">
-import org.springframework.ai.client.AiClient;
-import org.springframework.ai.client.AiResponse;
-import org.springframework.ai.mcp.MCP;
-import org.springframework.ai.mcp.MCPClient;
-import org.springframework.ai.mcp.MCPRequest;
-import org.springframework.ai.mcp.MCPResponse;
-import org.springframework.stereotype.Service;
+    @GetMapping(value = "/generate", produces = "text/event-stream")
+    public Flux<String> generate(@RequestParam String message) {
 
-@Service
-public class MCPToolService {
+        Message userMessage = new UserMessage(message);
+        SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(systemResource);
+        Message systemMessage = systemPromptTemplate.createMessage();
+        SimpleLoggerAdvisor loggerAdvisor = SimpleLoggerAdvisor.builder().build();
+        MessageChatMemoryAdvisor chatMemoryAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
 
-    private final AiClient aiClient;
-    private final MCPClient mcpClient;
-
-    public MCPToolService(AiClient aiClient) {
-        this.aiClient = aiClient;
-        this.mcpClient = new MCPClient(aiClient);
+        return chatClient.prompt(new Prompt(List.of(userMessage, systemMessage)))
+                .advisors(chatMemoryAdvisor, loggerAdvisor)
+                .stream()
+                .chatResponse()
+                .mapNotNull(chatResponse -> chatResponse.getResult().getOutput().getText())
+                .doOnComplete(() -> {
+                    
+                });
     }
-
-    public String generateCodeWithMCP(String prompt, String language) {
-        // 创建MCP请求
-        MCPRequest request = MCPRequest.builder()
-            .withPrompt(prompt)
-            .withContext("language", language)
-            .withTool(new CodeGenerationTool())
-            .build();
-        
-        // 发送请求并获取响应
-        MCPResponse response = mcpClient.generate(request);
-        
-        // 处理响应
-        if (response.hasToolResults()) {
-            return response.getToolResult(CodeGenerationTool.class).getGeneratedCode();
-        } else {
-            return response.getContent();
-        }
-    }
-    
-    // 自定义MCP工具实现
-    @MCP(name = "code_generation")
-    public static class CodeGenerationTool {
-        private String generatedCode;
-        
-        public void execute(String prompt, String language) {
-            // 工具实现逻辑
-            this.generatedCode = "// 根据提示生成的" + language + "代码\n";
-            // 实际代码生成逻辑...
-        }
-        
-        public String getGeneratedCode() {
-            return generatedCode;
-        }
-    }
-}
                             </code></pre>
                         </div>
                     </div>
                 </div>
 
-                <!-- 实现效果与应用场景 -->
                 <div class="practical-block">
-                    <h3 class="practical-title">实现效果与应用场景</h3>
-                    <p class="practical-intro">通过上述Spring AI MCP工具实现，我们可以在Java应用中实现多种智能编译场景，显著提升开发效率和代码质量。</p>
-                    
+                    <h3 class="practical-title">拓展知识A2A</h3>
+                    <p class="practical-intro"><a href="https://a2aproject.github.io/A2A/v0.2.5/">Agent2Agent</a> (A2A) 协议是由谷歌发起的开放标准，旨在实现不同 AI 代理系统之间的通信和互操作性。</p>
+
                     <div class="scenarios-grid">
                         <div class="scenario-card">
-                            <h4>代码生成与转换</h4>
+                            <h4>A2A 协议的重点</h4>
                             <ul class="scenario-list">
-                                <li>根据自然语言描述生成完整的Java类或方法</li>
-                                <li>将一种编程语言的代码转换为另一种语言</li>
-                                <li>自动生成单元测试和集成测试代码</li>
-                                <li>根据数据库模式自动生成ORM实体类</li>
+                                <li>代理发现</li>
+                                <li>任务管理</li>
+                                <li>多种内容类型</li>
+                                <li>实时更新</li>
                             </ul>
                         </div>
                         <div class="scenario-card">
-                            <h4>代码优化与重构</h4>
+                            <h4>MCP 协议的重点</h4>
                             <ul class="scenario-list">
-                                <li>识别并修复性能瓶颈和内存泄漏</li>
-                                <li>将遗留代码重构为现代设计模式</li>
-                                <li>优化SQL查询和数据库交互</li>
-                                <li>自动应用最佳实践和安全修复</li>
+                                <li>工具调用</li>
+                                <li>上下文增强</li>
+                                <li>API 集成</li>
+                                <li>数据检索</li>
                             </ul>
                         </div>
                     </div>
@@ -519,14 +511,12 @@ public class MCPToolService {
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <h4>实战小贴士</h4>
+                            <h4>实用学习AI工具</h4>
                         </div>
-                        <p>在实际应用MCP工具时，以下几点可以帮助你获得更好的效果：</p>
                         <ul class="tips-list">
-                            <li>提供足够的上下文信息，包括项目结构、依赖关系和设计约束</li>
-                            <li>使用迭代方法，先生成基础代码，然后逐步完善和优化</li>
-                            <li>结合代码审查工具，确保生成代码的质量和安全性</li>
-                            <li>为特定领域创建自定义MCP工具，提高代码生成的针对性和准确性</li>
+                            <li>和GPT一起学习  <a href="https://www.studywithgpt.com/zh-cn">Studywithgpt</a></li>
+                            <li>AI驱动的快速学习代码库神器  <a href="https://deepwiki.com/">Deepwiki</a></li>
+                            <li>一站式开源的模型即服务共享平台  <a href="https://www.modelscope.cn/home">ModelScope</a></li>
                         </ul>
                     </div>
                 </div>
@@ -540,6 +530,19 @@ public class MCPToolService {
             <p>© 2025 智能编译与MCP：重塑代码世界的革新引擎</p>
         </div>
     </footer>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox-modal" class="lightbox">
+        <span class="close-lightbox">&times;</span>
+        <div class="lightbox-controls">
+            <button class="zoom-btn" id="zoom-in">+</button>
+            <button class="zoom-btn" id="zoom-out">-</button>
+            <button class="zoom-btn" id="zoom-reset">重置</button>
+        </div>
+        <div class="lightbox-image-container">
+            <img class="lightbox-content" id="lightbox-image">
+        </div>
+    </div>
 
     <!-- 脚本 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>

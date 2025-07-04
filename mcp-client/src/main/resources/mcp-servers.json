@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/wanmingyu/workspace/my/share/spring-ai-demo/example"
+      ]
+    }
+
+  }
+}
