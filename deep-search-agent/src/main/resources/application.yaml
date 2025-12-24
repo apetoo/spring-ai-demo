@@ -1,0 +1,33 @@
+
+
+spring:
+  application:
+    name: mcp-client
+  ai:
+    deepseek:
+      base-url: https://gateway.ai.cloudflare.com/v1/88a0fb740f03c57baeaa509e82bc923c/my-gateway/deepseek
+      api-key: ${DEEPSEEK_API_KEY}
+      chat:
+        options:
+          model: deepseek-chat
+server:
+  port: 8082
+#logging:
+#  level:
+#    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: DEBUG
+  file:
+    path: ${user.dir}/logs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+apeto:
+  third-api:
+    tavily-search:
+      base-url: https://api.tavily.com

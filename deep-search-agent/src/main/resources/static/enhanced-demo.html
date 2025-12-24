@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多轮检索反思 Agent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .search-box {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .search-group {
+            display: flex;
+            gap: 15px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 18px 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            padding: 18px 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 140px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: #e9ecef;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .main-content {
+            display: flex;
+            min-height: 700px;
+        }
+        
+        .process-panel {
+            width: 400px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .result-panel {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+        }
+        
+        .step-card {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .step-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        
+        .step-header {
+            padding: 15px 20px;
+            background: #6c757d;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .step-header.completed {
+            background: #28a745;
+        }
+        
+        .step-header.processing {
+            background: #17a2b8;
+        }
+        
+        .step-header.error {
+            background: #dc3545;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        
+        .step-status {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+        
+        .step-content {
+            padding: 15px 20px;
+            display: none;
+            border-top: 1px solid #e9ecef;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .step-content.expanded {
+            display: block;
+        }
+        
+        .search-results {
+            margin-top: 10px;
+        }
+        
+        .search-result-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .result-content {
+            color: #6c757d;
+            font-size: 0.85em;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        
+        .result-score {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+        }
+        
+        .markdown-content {
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+            color: #2c3e50;
+            margin: 20px 0 15px 0;
+        }
+        
+        .markdown-content h1 {
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .markdown-content h2 {
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+        
+        .markdown-content p {
+            margin-bottom: 15px;
+        }
+        
+        .markdown-content ul, .markdown-content ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        
+        .markdown-content li {
+            margin-bottom: 8px;
+        }
+        
+        .markdown-content code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Monaco', monospace;
+        }
+        
+        .markdown-content pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        .example-queries {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .example-query {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+        
+        .example-query:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .loading-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-info {
+            padding: 15px 20px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            margin-bottom: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95em;
+            color: #1565c0;
+            display: none;
+        }
+        
+        .expand-icon {
+            transition: transform 0.3s;
+        }
+        
+        .expand-icon.expanded {
+            transform: rotate(180deg);
+        }
+        
+        .query-info {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        
+        .reasoning-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        
+        .toggle-link {
+            color: #667eea !important;
+            cursor: pointer;
+            margin-left: 5px;
+            text-decoration: underline;
+            font-size: 0.85em;
+        }
+        
+        .toggle-link:hover {
+            color: #5a6fd8 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 多轮检索反思 Agent</h1>
+            <p>深度搜索 · 反思优化 · 智能报告生成</p>
+        </div>
+        
+        <div class="search-box">
+            <div class="search-group">
+                <input 
+                    type="text" 
+                    id="query" 
+                    placeholder="输入你想深度研究的主题..."
+                    value="人工智能在医疗领域的应用"
+                >
+                <button onclick="startDeepSearch()" id="btn">开始研究</button>
+            </div>
+        </div>
+        
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="status-info" id="statusInfo">
+            正在初始化深度搜索...
+        </div>
+        
+        <div class="main-content">
+            <div class="process-panel" id="processPanel">
+                <div class="empty-state">
+                    <h3>🚀 准备开始</h3>
+                    <p>输入主题开始多轮检索反思</p>
+                    
+                    <div class="example-queries">
+                        <div class="example-query" onclick="setQuery('区块链技术的发展趋势')">区块链技术</div>
+                        <div class="example-query" onclick="setQuery('可持续能源的未来')">可持续能源</div>
+                        <div class="example-query" onclick="setQuery('量子计算的商业应用')">量子计算</div>
+                        <div class="example-query" onclick="setQuery('大模型的安全挑战')">大模型安全</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-panel" id="resultPanel">
+                <div class="empty-state">
+                    <h3>📄 研究报告</h3>
+                    <p>完成研究后，这里将显示Markdown格式的报告</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let eventSource = null;
+        let currentProgress = 0;
+        let currentSteps = {};
+        let finalReport = '';
+        let currentParagraphId = null;
+        let searchResultsBuffer = '';
+        let reportStructureBuffer = '';
+        let finalReportBuffer = '';
+        let isCollectingReport = false;
+
+        function setQuery(query) {
+            document.getElementById('query').value = query;
+        }
+
+        function startDeepSearch() {
+            const query = document.getElementById('query').value.trim();
+            if (!query) {
+                alert('请输入研究问题');
+                return;
+            }
+
+            const btn = document.getElementById('btn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            const statusInfo = document.getElementById('statusInfo');
+            const processPanel = document.getElementById('processPanel');
+            const resultPanel = document.getElementById('resultPanel');
+            
+            // 重置状态
+            currentProgress = 0;
+            currentSteps = {};
+            finalReport = '';
+            currentParagraphId = null;
+            searchResultsBuffer = '';
+            reportStructureBuffer = '';
+            finalReportBuffer = '';
+            isCollectingReport = false;
+            progressFill.style.width = '0%';
+            
+            // 清空面板
+            processPanel.innerHTML = '';
+            resultPanel.innerHTML = '<div class="empty-state"><h3>📄 研究报告</h3><p>正在生成报告...</p></div>';
+            
+            // 显示进度条和状态
+            progressBar.style.display = 'block';
+            statusInfo.style.display = 'block';
+            statusInfo.textContent = '正在生成报告结构...';
+            
+            // 禁用按钮
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loading-indicator"><div class="spinner"></div>深度搜索中</div>';
+
+            // 关闭之前的连接
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            // 建立SSE连接
+            eventSource = new EventSource(`/api/research?query=${encodeURIComponent(query)}`);
+
+            eventSource.onmessage = function(event) {
+                const data = event.data;
+                
+                // 累积报告结构数据
+                if (data.includes('REPORT_STRUCTURE_START') || reportStructureBuffer.includes('REPORT_STRUCTURE_START')) {
+                    reportStructureBuffer += data + '\n';
+                    
+                    // 检查是否接收完整
+                    if (data.includes('REPORT_STRUCTURE_END')) {
+                        parseAndDisplayReportStructure(reportStructureBuffer);
+                        reportStructureBuffer = '';
+                    }
+                    return;
+                }
+                
+                // 累积最终报告数据
+                if (data.includes('FINAL_REPORT_START') || finalReportBuffer.includes('FINAL_REPORT_START')) {
+                    finalReportBuffer += data + '\n';
+                    
+                    // 检查是否接收完整
+                    if (data.includes('FINAL_REPORT_END')) {
+                        parseAndDisplayFinalReport(finalReportBuffer);
+                        finalReportBuffer = '';
+                    }
+                    return;
+                }
+                
+                // 累积搜索结果数据
+                if (data.includes('SEARCH_RESULTS_START') || data.includes('REFLECTION_SEARCH_RESULTS_START') || 
+                    searchResultsBuffer.includes('SEARCH_RESULTS_START') || searchResultsBuffer.includes('REFLECTION_SEARCH_RESULTS_START')) {
+                    searchResultsBuffer += data + '\n';
+                    
+                    // 检查是否接收完整
+                    if (data.includes('SEARCH_RESULTS_END') || data.includes('REFLECTION_SEARCH_RESULTS_END')) {
+                        parseAndDisplaySearchResults(searchResultsBuffer);
+                        searchResultsBuffer = '';
+                    }
+                    return;
+                }
+                
+                // 处理不同类型的消息
+                if (data.includes('📋 正在生成报告结构')) {
+                    handleStructureGeneration();
+                } else if (data.includes('✅ 报告结构生成完成')) {
+                    handleStructureComplete(data);
+                } else if (data.includes('🔄 段落')) {
+                    handleParagraphStart(data);
+                } else if (data.includes('🔍 生成搜索查询')) {
+                    handleSearchQueryGeneration(data);
+                } else if (data.includes('🌐 执行搜索')) {
+                    handleSearchExecution(data);
+                } else if (data.includes('📝 总结搜索结果')) {
+                    handleSummarization(data);
+                } else if (data.includes('🤔 反思分析')) {
+                    handleReflection(data);
+                } else if (data.includes('🔍 执行反思搜索')) {
+                    handleReflectionSearch(data);
+                } else if (data.includes('✨ 丰富内容')) {
+                    handleEnrichment(data);
+                } else if (data.includes('✅ 段落') && data.includes('完成')) {
+                    handleParagraphComplete(data);
+                } else if (data.includes('📄 正在生成最终报告')) {
+                    handleFinalReportGeneration();
+                } else if (data.includes('🎉 深度研究完成')) {
+                    handleResearchComplete();
+                }
+                
+                // 更新进度
+                updateProgress(data);
+            };
+
+            eventSource.onerror = function() {
+                eventSource.close();
+                btn.disabled = false;
+                btn.textContent = '开始研究';
+                progressBar.style.display = 'none';
+                statusInfo.style.display = 'none';
+            };
+        }
+
+        function handleStructureGeneration() {
+            addStepCard('structure', '📋 生成报告结构', 'processing', '正在分析主题...');
+        }
+
+        function handleStructureComplete(data) {
+            const match = data.match(/共 (\d+) 个段落/);
+            const count = match ? match[1] : '未知';
+            updateStepCard('structure', '📋 生成报告结构', 'completed', `已生成 ${count} 个段落`);
+        }
+
+        function parseAndDisplayReportStructure(buffer) {
+            const lines = buffer.split('\n');
+            let paragraphCount = 0;
+            let paragraphs = [];
+            
+            for (let line of lines) {
+                line = line.trim();
+                
+                if (line.startsWith('段落总数:')) {
+                    paragraphCount = parseInt(line.split(':')[1].trim());
+                } else if (line.startsWith('段落 ') && line.includes(':')) {
+                    const titleMatch = line.match(/段落 (\d+): (.+)/);
+                    if (titleMatch) {
+                        paragraphs.push({
+                            number: titleMatch[1],
+                            title: titleMatch[2]
+                        });
+                    }
+                }
+            }
+            
+            // 更新报告结构步骤的内容
+            const contentDiv = document.getElementById('content-structure');
+            if (contentDiv) {
+                contentDiv.innerHTML = `
+                    <div class="query-info">
+                        <strong>报告结构分析:</strong> 已为主题生成 ${paragraphCount} 个段落的结构化大纲
+                    </div>
+                    <div class="search-results">
+                        <h4>段落结构 (${paragraphCount} 个):</h4>
+                        ${paragraphs.map(p => `
+                            <div class="search-result-item">
+                                <div class="result-title">段落 ${p.number}: ${p.title}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 0.9em;">
+                        📝 每个段落将进行：<br>
+                        • 生成针对性搜索查询<br>
+                        • 执行搜索并获取相关信息<br>
+                        • 总结搜索结果<br>
+                        • 反思分析并补充搜索<br>
+                        • 丰富和完善内容
+                    </div>
+                `;
+            }
+        }
+
+        function handleParagraphStart(data) {
+            const match = data.match(/🔄 段落 (\d+): (.+)/);
+            if (match) {
+                const paragraphId = `paragraph-${match[1]}`;
+                const title = match[2].trim();
+                currentParagraphId = paragraphId;
+                addStepCard(paragraphId, `📝 段落 ${match[1]}: ${title}`, 'processing', '开始处理...');
+            }
+        }
+
+        function handleSearchQueryGeneration(data) {
+            // 可以在这里添加搜索查询的详细信息
+        }
+
+        function handleSearchExecution(data) {
+            const match = data.match(/找到 (\d+) 条结果/);
+            if (match) {
+                // 解析搜索结果
+                parseSearchResults(data);
+            }
+        }
+
+        function handleSummarization(data) {
+            // 处理总结步骤
+        }
+
+        function handleReflection(data) {
+            // 处理反思步骤
+        }
+
+        function handleReflectionSearch(data) {
+            // 处理反思搜索步骤
+        }
+
+        function handleEnrichment(data) {
+            // 处理内容丰富步骤
+        }
+
+        function handleParagraphComplete(data) {
+            const match = data.match(/✅ 段落 (\d+) 完成/);
+            if (match) {
+                const paragraphId = `paragraph-${match[1]}`;
+                updateStepCard(paragraphId, `📝 段落 ${match[1]}`, 'completed', '处理完成');
+            }
+        }
+
+        function handleFinalReportGeneration() {
+            addStepCard('final-report', '📄 生成最终报告', 'processing', '整合所有内容...');
+        }
+
+        function handleResearchComplete() {
+            updateStepCard('final-report', '📄 生成最终报告', 'completed', '报告生成完成');
+            
+            // 恢复按钮状态
+            const btn = document.getElementById('btn');
+            btn.disabled = false;
+            btn.textContent = '开始研究';
+            
+            // 隐藏进度条
+            setTimeout(() => {
+                document.getElementById('progressBar').style.display = 'none';
+                document.getElementById('statusInfo').style.display = 'none';
+            }, 2000);
+        }
+
+        function addStepCard(id, title, status, statusText) {
+            const processPanel = document.getElementById('processPanel');
+            
+            const stepCard = document.createElement('div');
+            stepCard.className = 'step-card';
+            stepCard.id = `step-${id}`;
+            
+            stepCard.innerHTML = `
+                <div class="step-header ${status}" onclick="toggleStepContent('${id}')">
+                    <div class="step-title">${title}</div>
+                    <div class="step-status">${statusText}</div>
+                    <div class="expand-icon">▼</div>
+                </div>
+                <div class="step-content" id="content-${id}">
+                    <div>详细信息将在这里显示...</div>
+                </div>
+            `;
+            
+            processPanel.appendChild(stepCard);
+            currentSteps[id] = { title, status, statusText };
+        }
+
+        function updateStepCard(id, title, status, statusText) {
+            const stepCard = document.getElementById(`step-${id}`);
+            if (stepCard) {
+                const header = stepCard.querySelector('.step-header');
+                const statusElement = stepCard.querySelector('.step-status');
+                
+                header.className = `step-header ${status}`;
+                statusElement.textContent = statusText;
+                
+                currentSteps[id] = { title, status, statusText };
+            }
+        }
+
+        function toggleStepContent(id) {
+            const content = document.getElementById(`content-${id}`);
+            const icon = document.querySelector(`#step-${id} .expand-icon`);
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('expanded');
+            }
+        }
+
+        function parseAndDisplayFinalReport(buffer) {
+            console.log('收到的最终报告缓冲区:', buffer); // 调试信息
+            
+            const lines = buffer.split('\n');
+            let reportContent = '';
+            let isInReport = false;
+            
+            for (let line of lines) {
+                if (line.includes('FINAL_REPORT_START')) {
+                    isInReport = true;
+                    continue;
+                } else if (line.includes('FINAL_REPORT_END')) {
+                    isInReport = false;
+                    break;
+                } else if (isInReport) {
+                    reportContent += line + '\n';
+                }
+            }
+            
+            console.log('解析出的报告内容:', reportContent); // 调试信息
+            
+            // 清理报告内容，移除可能的JSON格式
+            let cleanedReport = reportContent.trim();
+            
+            // 检查是否是JSON格式，如果是则尝试解析
+            if (cleanedReport.startsWith('[') || cleanedReport.startsWith('{')) {
+                console.log('检测到JSON格式，尝试解析...');
+                try {
+                    // 如果是JSON数组格式，提取内容
+                    const jsonData = JSON.parse(cleanedReport);
+                    if (Array.isArray(jsonData)) {
+                        // 如果是段落数组，组合成报告
+                        cleanedReport = jsonData.map(item => {
+                            if (item.title && item.paragraph_latest_state) {
+                                return `## ${item.title}\n\n${item.paragraph_latest_state}\n`;
+                            }
+                            return '';
+                        }).join('\n');
+                    }
+                } catch (e) {
+                    console.log('JSON解析失败，使用原始内容');
+                }
+            }
+            
+            // 更新全局变量
+            finalReport = cleanedReport;
+            
+            console.log('最终报告内容:', finalReport); // 调试信息
+            
+            // 更新右侧面板
+            updateFinalReport();
+            
+            // 更新最终报告步骤的内容
+            const contentDiv = document.getElementById('content-final-report');
+            if (contentDiv && finalReport.trim()) {
+                const reportPreview = truncateText(finalReport.replace(/[#*\n]/g, ' '), 100);
+                contentDiv.innerHTML = `
+                    <div class="query-info">
+                        <strong>最终报告:</strong> 已生成完整的Markdown格式研究报告
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 0.9em;">
+                        <strong>报告预览:</strong><br>
+                        ${reportPreview}
+                    </div>
+                    <div style="margin-top: 10px; font-size: 0.85em; color: #6c757d;">
+                        📄 完整报告请查看右侧面板
+                    </div>
+                `;
+            }
+        }
+
+        function updateFinalReport() {
+            const resultPanel = document.getElementById('resultPanel');
+            
+            if (finalReport.trim()) {
+                // 使用marked.js渲染markdown
+                const htmlContent = marked.parse(finalReport);
+                resultPanel.innerHTML = `<div class="markdown-content">${htmlContent}</div>`;
+                
+                // 高亮代码块
+                resultPanel.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            } else {
+                resultPanel.innerHTML = '<div class="empty-state"><h3>📄 研究报告</h3><p>正在生成报告...</p></div>';
+            }
+        }
+
+        function updateProgress(data) {
+            const statusInfo = document.getElementById('statusInfo');
+            const progressFill = document.getElementById('progressFill');
+            
+            // 根据输出内容更新进度
+            if (data.includes('📋 正在生成报告结构')) {
+                currentProgress = 10;
+                statusInfo.textContent = '📋 正在生成报告结构...';
+            } else if (data.includes('✅ 报告结构生成完成')) {
+                currentProgress = 20;
+                statusInfo.textContent = '✅ 报告结构生成完成';
+            } else if (data.includes('🔄 段落')) {
+                currentProgress = Math.min(currentProgress + 12, 80);
+                const match = data.match(/🔄 段落 (\d+):/);
+                if (match) {
+                    statusInfo.textContent = `🔄 正在处理段落 ${match[1]}...`;
+                }
+            } else if (data.includes('📄 正在生成最终报告')) {
+                currentProgress = 90;
+                statusInfo.textContent = '📄 正在生成最终报告...';
+            } else if (data.includes('🎉 深度研究完成')) {
+                currentProgress = 100;
+                statusInfo.textContent = '🎉 深度研究完成！';
+            }
+            
+            progressFill.style.width = currentProgress + '%';
+        }
+
+        function parseAndDisplaySearchResults(buffer) {
+            if (!currentParagraphId) return;
+            
+            const isReflectionSearch = buffer.includes('REFLECTION_SEARCH_RESULTS_START');
+            const lines = buffer.split('\n');
+            
+            let query = '';
+            let results = [];
+            let currentResult = null;
+            
+            for (let line of lines) {
+                line = line.trim();
+                
+                if (line.startsWith('查询:') || line.startsWith('反思查询:')) {
+                    query = line.split(':')[1].trim();
+                } else if (line === 'RESULT_ITEM_START') {
+                    currentResult = {};
+                } else if (line === 'RESULT_ITEM_END') {
+                    if (currentResult) {
+                        results.push(currentResult);
+                        currentResult = null;
+                    }
+                } else if (currentResult && line.includes(':')) {
+                    const [key, ...valueParts] = line.split(':');
+                    const value = valueParts.join(':').trim();
+                    
+                    if (key === '标题') currentResult.title = value;
+                    else if (key === '内容') currentResult.content = value;
+                    else if (key === '分数') currentResult.score = parseFloat(value);
+                    else if (key === '链接') currentResult.url = value;
+                }
+            }
+            
+            // 更新步骤卡片内容
+            updateStepCardWithSearchResults(currentParagraphId, query, results, isReflectionSearch);
+        }
+
+        function truncateText(text, maxLength = 50) {
+            if (!text) return '';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function updateStepCardWithSearchResults(paragraphId, query, results, isReflection) {
+            const contentDiv = document.getElementById(`content-${paragraphId}`);
+            if (!contentDiv) return;
+            
+            const searchType = isReflection ? '反思搜索' : '初次搜索';
+            const searchHtml = `
+                <div class="query-info">
+                    <strong>${searchType}查询:</strong> ${query}
+                </div>
+                <div class="search-results">
+                    <h4>搜索结果 (${results.length} 条):</h4>
+                    ${results.map((result, index) => {
+                        const shortContent = truncateText(result.content, 50);
+                        const resultId = `result-${paragraphId}-${isReflection ? 'reflection' : 'initial'}-${index}`;
+                        return `
+                            <div class="search-result-item">
+                                <div class="result-title">${result.title}</div>
+                                <div class="result-content" id="${resultId}-short">
+                                    ${shortContent}
+                                    ${result.content.length > 50 ? 
+                                        `<span class="toggle-link" onclick="toggleFullContent('${resultId}')">展开全文</span>` 
+                                        : ''
+                                    }
+                                </div>
+                                <div class="result-content" id="${resultId}-full" style="display: none;">
+                                    ${result.content}
+                                    <span class="toggle-link" onclick="toggleFullContent('${resultId}')">收起</span>
+                                </div>
+                                <div style="margin-top: 8px;">
+                                    <span class="result-score">分数: ${result.score.toFixed(2)}</span>
+                                    <a href="${result.url}" target="_blank" style="margin-left: 10px; font-size: 0.8em; color: #667eea;">查看原文</a>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            if (isReflection) {
+                // 如果是反思搜索，追加到现有内容
+                contentDiv.innerHTML += searchHtml;
+            } else {
+                // 如果是初次搜索，替换内容
+                contentDiv.innerHTML = searchHtml;
+            }
+        }
+
+        function toggleFullContent(resultId) {
+            const shortDiv = document.getElementById(`${resultId}-short`);
+            const fullDiv = document.getElementById(`${resultId}-full`);
+            
+            if (shortDiv.style.display === 'none') {
+                // 当前显示全文，切换到简短版本
+                shortDiv.style.display = 'block';
+                fullDiv.style.display = 'none';
+            } else {
+                // 当前显示简短版本，切换到全文
+                shortDiv.style.display = 'none';
+                fullDiv.style.display = 'block';
+            }
+        }
+
+        // 支持回车键搜索
+        document.getElementById('query').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startDeepSearch();
+            }
+        });
+    </script>
+</body>
+</html>
