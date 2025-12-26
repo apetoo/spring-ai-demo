@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多轮检索反思 Agent 实践</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 60px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-in-out;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Slide Variants */
+        .slide.dark {
+            background: #000;
+            color: #fff;
+        }
+
+        .slide.light {
+            background: #fff;
+            color: #000;
+        }
+
+        .slide.code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            text-align: left;
+            padding: 60px 80px;
+            justify-content: flex-start;
+            padding-top: 60px;
+        }
+
+        /* Typography */
+        .slide h1 {
+            font-size: 72px;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .slide h2 {
+            font-size: 56px;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 30px;
+            letter-spacing: -0.5px;
+        }
+
+        .slide p {
+            font-size: 28px;
+            font-weight: 400;
+            line-height: 1.6;
+            margin: 15px 0;
+            max-width: 900px;
+        }
+
+        .slide .subtitle {
+            font-size: 32px;
+            font-weight: 300;
+            opacity: 0.7;
+            margin-top: 15px;
+        }
+
+        .slide .accent {
+            color: #0071e3;
+            font-weight: 600;
+        }
+
+        /* Code Block Styling */
+        .code-block {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 6px;
+            padding: 20px 24px;
+            margin: 20px 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #d4d4d4;
+            text-align: left;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .code-block::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .code-block::-webkit-scrollbar-track {
+            background: #2d2d30;
+        }
+
+        .code-block::-webkit-scrollbar-thumb {
+            background: #464647;
+            border-radius: 4px;
+        }
+
+        .code-block::-webkit-scrollbar-thumb:hover {
+            background: #5a5a5a;
+        }
+
+        .code-block .keyword {
+            color: #569cd6;
+            font-weight: bold;
+        }
+
+        .code-block .string {
+            color: #ce9178;
+        }
+
+        .code-block .comment {
+            color: #6a9955;
+            font-style: italic;
+        }
+
+        .code-block .property {
+            color: #9cdcfe;
+        }
+
+        .code-block .number {
+            color: #b5cea8;
+        }
+
+        .code-block .boolean {
+            color: #569cd6;
+        }
+
+        /* Content Layout */
+        .slide-content {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .slide-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .slide-grid.three-col {
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+        }
+
+        .grid-item {
+            text-align: left;
+        }
+
+        .grid-item h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .grid-item p {
+            font-size: 18px;
+            text-align: left;
+            margin: 10px 0;
+        }
+
+        /* Flow Diagram */
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+
+        .flow-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            min-width: 120px;
+        }
+
+        .flow-arrow {
+            font-size: 24px;
+            opacity: 0.5;
+        }
+
+        /* Stage List */
+        .stage-list {
+            text-align: left;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+
+        .stage-item {
+            display: flex;
+            align-items: flex-start;
+            margin: 25px 0;
+            font-size: 20px;
+        }
+
+        .stage-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: #0071e3;
+            border-radius: 50%;
+            margin-right: 20px;
+            flex-shrink: 0;
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        .stage-text {
+            flex: 1;
+            padding-top: 5px;
+        }
+
+        .stage-text strong {
+            display: block;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .stage-text span {
+            font-size: 18px;
+            opacity: 0.8;
+        }
+
+        /* Highlight Box */
+        .highlight-box {
+            background: rgba(0, 113, 227, 0.1);
+            border-left: 4px solid #0071e3;
+            padding: 30px 40px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: left;
+            max-width: 900px;
+        }
+
+        .highlight-box p {
+            font-size: 24px;
+            margin: 0;
+            text-align: left;
+        }
+
+        /* Node Card */
+        .node-card {
+            background: rgba(0, 113, 227, 0.08);
+            border: 2px solid #0071e3;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: left;
+            max-width: 900px;
+        }
+
+        .node-card h3 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #0071e3;
+            margin-bottom: 10px;
+        }
+
+        .node-card p {
+            font-size: 16px;
+            margin: 8px 0;
+            opacity: 0.9;
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Slide Counter */
+        .slide-counter {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        /* Keyboard hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .slide {
+                padding: 60px 40px;
+            }
+
+            .slide h1 {
+                font-size: 56px;
+            }
+
+            .slide h2 {
+                font-size: 44px;
+            }
+
+            .slide p {
+                font-size: 24px;
+            }
+
+            .slide-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .slide-grid.three-col {
+                grid-template-columns: 1fr;
+            }
+
+            .code-block {
+                font-size: 11px;
+            }
+        }
+
+        /* Light theme adjustments */
+        .slide.light .flow-item {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .slide.light .highlight-box {
+            background: rgba(0, 113, 227, 0.05);
+        }
+
+        /* Emphasis */
+        .emphasis {
+            font-size: 36px;
+            font-weight: 600;
+            color: #0071e3;
+            margin: 20px 0;
+        }
+
+        .large-text {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin: 30px 0;
+        }
+
+        /* Prompt Title */
+        .prompt-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0071e3;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        /* Architecture Diagram */
+        .architecture {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 40px 0;
+            max-width: 800px;
+            text-align: left;
+        }
+
+        .arch-box {
+            background: rgba(0, 113, 227, 0.1);
+            border: 1px solid #0071e3;
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .arch-arrow {
+            text-align: center;
+            font-size: 20px;
+            opacity: 0.5;
+            margin: 5px 0;
+        }
+
+        /* Code slide content */
+        .code-slide-content {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .code-slide-title {
+            color: #fff;
+            text-align: left;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Cover -->
+        <div class="slide dark active">
+            <div class="slide-content">
+                <h1>多轮检索反思 Agent</h1>
+                <p class="subtitle">从"能答"到"答对"的进化之路</p>
+                <p style="margin-top: 80px; font-size: 20px; opacity: 0.6;">宣讲人: 万明宇</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Challenge -->
+        <div class="slide dark">
+            <div class="slide-content">
+                <h2>为什么普通大模型不够用？</h2>
+                <div style="margin-top: 60px; text-align: left; max-width: 900px;">
+                    <div class="stage-item">
+                        <div class="stage-number">1</div>
+                        <div class="stage-text">
+                            <strong>一次性回答</strong>
+                            <span>模型只给出一个结果，没有自我校验过程</span>
+                        </div>
+                    </div>
+                    <div class="stage-item">
+                        <div class="stage-number">2</div>
+                        <div class="stage-text">
+                            <strong>幻觉风险</strong>
+                            <span>内容听起来合理，但事实来源不清</span>
+                        </div>
+                    </div>
+                    <div class="stage-item">
+                        <div class="stage-number">3</div>
+                        <div class="stage-text">
+                            <strong>深度不足</strong>
+                            <span>复杂问题无法拆解、验证、再修正</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Architecture -->
+        <div class="slide light">
+            <div class="slide-content">
+                <h2>节点化编排</h2>
+                <div class="architecture" style="margin-top: 60px;">
+                    <div class="arch-box">ReportStructureNode: 规划报告结构</div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box">FirstSearchNode: 生成搜索意图</div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box">FirstSummaryNode: 初步事实注入</div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box">ReflectionNode: 批判性反思</div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box">ReflectionSummaryNode: 迭代丰富</div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-box">ReportFormattingNode: 最终格式化</div>
+                </div>
+                <p style="margin-top: 40px; font-size: 18px; color: #000; opacity: 0.7;">
+                    ResearchService 编排所有节点，确保步骤间同步，步骤内异步流式处理.
+                    <p>我并没有完全依赖框架,是因为更好的让大家看到内部流转的逻辑</p>
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Stage 1 - Report Structure -->
+        <div class="slide dark">
+            <div class="slide-content">
+                <h2>阶段一：规划报告结构</h2>
+                <p class="subtitle">ReportStructureNode</p>
+                <div class="node-card" style="margin-top: 60px;">
+                    <h3>🎯 目标</h3>
+                    <p>不急于搜索，先构建问题空间。输出 3 个独立段落，每一个代表一种认知视角。</p>
+                    <h3 style="margin-top: 20px;">📊 输入</h3>
+                    <p>用户查询 (query)</p>
+                    <h3 style="margin-top: 20px;">📤 输出</h3>
+                    <p>JSON 数组，包含 title 和 content 字段</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Prompt - Report Structure -->
+        <div class="slide code">
+            <div class="code-slide-content">
+                <h2 class="code-slide-title">系统提示词：规划报告结构</h2>
+                <div class="code-block">你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多三个段落。
+确保段落的排序合理有序。
+一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。
+请按照以下JSON模式定义格式化输出：
+
+<span class="keyword">&lt;OUTPUT JSON SCHEMA&gt;</span>
+{
+    <span class="property">"type"</span>: <span class="string">"array"</span>,
+    <span class="property">"items"</span>: {
+        <span class="property">"type"</span>: <span class="string">"object"</span>,
+        <span class="property">"properties"</span>: {
+            <span class="property">"title"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+            <span class="property">"content"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>}
+        }
+    }
+}
+<span class="keyword">&lt;/OUTPUT JSON SCHEMA&gt;</span>
+
+标题和内容属性将用于更深入的研究。
+确保输出是一个符合上述输出JSON模式定义的JSON对象。
+只返回JSON对象，不要有解释或额外文本。内容必须是中文</div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Stage 2 - First Search -->
+        <div class="slide dark">
+            <div class="slide-content">
+                <h2>阶段二：生成搜索意图</h2>
+                <p class="subtitle">FirstSearchNode</p>
+                <div class="node-card" style="margin-top: 60px;">
+                    <h3>🎯 目标</h3>
+                    <p>从陈述转化为提问。识别事实与不确定性，生成最佳的搜索关键词。</p>
+                    <h3 style="margin-top: 20px;">📊 输入</h3>
+                    <p>段落 JSON (title + content)</p>
+                    <h3 style="margin-top: 20px;">📤 输出</h3>
+                    <p>search_query 和 reasoning</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Prompt - First Search -->
+        <div class="slide code">
+            <div class="code-slide-content">
+                <h2 class="code-slide-title">系统提示词：生成搜索意图</h2>
+                <div class="code-block">你是一位深度研究助手。你将获得报告中的一个段落，其标题和预期内容将按照以下JSON模式定义提供：
+
+<span class="keyword">&lt;INPUT JSON SCHEMA&gt;</span>
+{
+    <span class="property">"type"</span>: <span class="string">"object"</span>,
+    <span class="property">"properties"</span>: {
+        <span class="property">"title"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+        <span class="property">"content"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>}
+    }
+}
+<span class="keyword">&lt;/INPUT JSON SCHEMA&gt;</span>
+
+你可以使用一个网络搜索工具，该工具接受'search_query'作为参数。
+你的任务是思考这个主题，并提供最佳的网络搜索查询来丰富你当前的知识。
+请按照以下JSON模式定义格式化输出（文字请使用中文）：
+
+<span class="keyword">&lt;OUTPUT JSON SCHEMA&gt;</span>
+{
+    <span class="property">"search_query"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+    <span class="property">"reasoning"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>}
+}
+<span class="keyword">&lt;/OUTPUT JSON SCHEMA&gt;</span>
+
+确保输出是一个符合上述输出JSON模式定义的JSON对象。
+只返回JSON对象，不要有解释或额外文本。</div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Stage 3 - First Summary -->
+        <div class="slide dark">
+            <div class="slide-content">
+                <h2>阶段三：初步事实注入</h2>
+                <p class="subtitle">FirstSummaryNode</p>
+                <div class="node-card" style="margin-top: 60px;">
+                    <h3>🎯 目标</h3>
+                    <p>强制中断模型的自我推演，把外部搜索结果引入系统。基于搜索结果撰写段落内容。</p>
+                    <h3 style="margin-top: 20px;">📊 输入</h3>
+                    <p>段落 JSON + 搜索结果数组</p>
+                    <h3 style="margin-top: 20px;">📤 输出</h3>
+                    <p>paragraph_latest_state (段落最新状态)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Prompt - First Summary -->
+        <div class="slide code">
+            <div class="code-slide-content">
+                <h2 class="code-slide-title">系统提示词：初步事实注入</h2>
+                <div class="code-block">你是一位深度研究助手。你将获得搜索查询、搜索结果以及你正在研究的报告段落，
+数据将按照以下JSON模式定义提供：
+
+<span class="keyword">&lt;INPUT JSON SCHEMA&gt;</span>
+{
+    <span class="property">"type"</span>: <span class="string">"object"</span>,
+    <span class="property">"properties"</span>: {
+        <span class="property">"title"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+        <span class="property">"content"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+        <span class="property">"search_query"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+        <span class="property">"search_results"</span>: {
+            <span class="property">"type"</span>: <span class="string">"array"</span>,
+            <span class="property">"items"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>}
+        }
+    }
+}
+<span class="keyword">&lt;/INPUT JSON SCHEMA&gt;</span>
+
+你的任务是作为研究者，使用搜索结果撰写与段落主题一致的内容，
+并适当地组织结构以便纳入报告中。
+请按照以下JSON模式定义格式化输出：
+
+<span class="keyword">&lt;OUTPUT JSON SCHEMA&gt;</span>
+{
+    <span class="property">"paragraph_latest_state"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>}
+}
+<span class="keyword">&lt;/OUTPUT JSON SCHEMA&gt;</span>
+
+确保输出是一个符合上述输出JSON模式定义的JSON对象。
+只返回JSON对象，不要有解释或额外文本。</div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Stage 4 - Reflection (Core) -->
+        <div class="slide dark">
+            <div class="slide-content">
+                <h2>阶段四：批判性反思</h2>
+                <p class="subtitle">ReflectionNode（核心循环）</p>
+                <div class="node-card" style="margin-top: 60px;">
+                    <h3>🎯 目标</h3>
+                    <p>反思段落的当前状态，思考是否遗漏了主题的关键方面。生成更精准的搜索关键词。</p>
+                    <h3 style="margin-top: 20px;">⚙️ 工程决策</h3>
+                    <p>循环次数由代码控制（如 3 次），而非模型决策。确保可预测性和成本可控。</p>
+                    <h3 style="margin-top: 20px;">📤 输出</h3>
+                    <p>新的 search_query 和 reasoning</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Prompt - Reflection -->
+        <div class="slide code">
+            <div class="code-slide-content">
+                <h2 class="code-slide-title">系统提示词：批判性反思</h2>
+                <div class="code-block">你是一位深度研究助手。你负责为研究报告构建全面的段落。
+你将获得段落标题、计划内容摘要，以及你已经创建的段落最新状态，
+所有这些都将按照以下JSON模式定义提供：
+
+<span class="keyword">&lt;INPUT JSON SCHEMA&gt;</span>
+{
+    <span class="property">"type"</span>: <span class="string">"object"</span>,
+    <span class="property">"properties"</span>: {
+        <span class="property">"title"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+        <span class="property">"content"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+        <span class="property">"paragraph_latest_state"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>}
+    }
+}
+<span class="keyword">&lt;/INPUT JSON SCHEMA&gt;</span>
+
+你可以使用一个网络搜索工具，该工具接受'search_query'作为参数。
+你的任务是反思段落文本的当前状态，思考是否遗漏了主题的某些关键方面，
+并提供最佳的网络搜索查询来丰富最新状态。
+请按照以下JSON模式定义格式化输出：
+
+<span class="keyword">&lt;OUTPUT JSON SCHEMA&gt;</span>
+{
+    <span class="property">"search_query"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+    <span class="property">"reasoning"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>}
+}
+<span class="keyword">&lt;/OUTPUT JSON SCHEMA&gt;</span>
+
+确保输出是一个符合上述输出JSON模式定义的JSON对象。
+只返回JSON对象，不要有解释或额外文本。</div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Stage 5 - Reflection Summary -->
+        <div class="slide dark">
+            <div class="slide-content">
+                <h2>阶段五：迭代丰富内容</h2>
+                <p class="subtitle">ReflectionSummaryNode</p>
+                <div class="node-card" style="margin-top: 60px;">
+                    <h3>🎯 目标</h3>
+                    <p>根据反思搜索结果，丰富段落的最新状态。只添加缺失信息，不删除关键信息。</p>
+                    <h3 style="margin-top: 20px;">🔄 迭代策略</h3>
+                    <p>保留已有的高质量内容，逐步补充遗漏的维度。确保内容的连贯性和完整性。</p>
+                    <h3 style="margin-top: 20px;">📤 输出</h3>
+                    <p>updated_paragraph_latest_state</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Prompt - Reflection Summary -->
+        <div class="slide code">
+            <div class="code-slide-content">
+                <h2 class="code-slide-title">系统提示词：迭代丰富</h2>
+                <div class="code-block">你是一位深度研究助手。
+你将获得搜索查询、搜索结果、段落标题以及你正在研究的报告段落的预期内容。
+你正在迭代完善这个段落，并且段落的最新状态也会提供给你。
+数据将按照以下JSON模式定义提供：
+
+<span class="keyword">&lt;INPUT JSON SCHEMA&gt;</span>
+{
+    <span class="property">"type"</span>: <span class="string">"object"</span>,
+    <span class="property">"properties"</span>: {
+        <span class="property">"title"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+        <span class="property">"content"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+        <span class="property">"search_query"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+        <span class="property">"search_results"</span>: {
+            <span class="property">"type"</span>: <span class="string">"array"</span>,
+            <span class="property">"items"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>}
+        },
+        <span class="property">"paragraph_latest_state"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>}
+    }
+}
+<span class="keyword">&lt;/INPUT JSON SCHEMA&gt;</span>
+
+你的任务是根据搜索结果和预期内容丰富段落的当前最新状态。
+<span class="comment">不要删除最新状态中的关键信息，尽量丰富它，只添加缺失的信息。</span>
+适当地组织段落结构以便纳入报告中。
+请按照以下JSON模式定义格式化输出：
+
+<span class="keyword">&lt;OUTPUT JSON SCHEMA&gt;</span>
+{
+    <span class="property">"updated_paragraph_latest_state"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>}
+}
+<span class="keyword">&lt;/OUTPUT JSON SCHEMA&gt;</span></div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Stage 6 - Report Formatting -->
+        <div class="slide dark">
+            <div class="slide-content">
+                <h2>阶段六：最终格式化</h2>
+                <p class="subtitle">ReportFormattingNode</p>
+                <div class="node-card" style="margin-top: 60px;">
+                    <h3>🎯 目标</h3>
+                    <p>汇总所有段落的最新状态，生成美观的 Markdown 格式报告。</p>
+                    <h3 style="margin-top: 20px;">📋 输入</h3>
+                    <p>所有段落的 title + paragraph_latest_state 数组</p>
+                    <h3 style="margin-top: 20px;">📤 输出</h3>
+                    <p>完整的 Markdown 报告，可直接用于业务决策</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Prompt - Report Formatting -->
+        <div class="slide code">
+            <div class="code-slide-content">
+                <h2 class="code-slide-title">系统提示词：最终格式化</h2>
+                <div class="code-block">你是一位深度研究助手。你已经完成了研究并构建了报告中所有段落的最终版本。
+你将获得以下JSON格式的数据：
+
+<span class="keyword">&lt;INPUT JSON SCHEMA&gt;</span>
+{
+    <span class="property">"type"</span>: <span class="string">"array"</span>,
+    <span class="property">"items"</span>: {
+        <span class="property">"type"</span>: <span class="string">"object"</span>,
+        <span class="property">"properties"</span>: {
+            <span class="property">"title"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>},
+            <span class="property">"paragraph_latest_state"</span>: {<span class="property">"type"</span>: <span class="string">"string"</span>}
+        }
+    }
+}
+<span class="keyword">&lt;/INPUT JSON SCHEMA&gt;</span>
+
+你的任务是将报告格式化为美观的Markdown格式报告。
+
+要求：
+1. 直接输出Markdown格式的报告内容，不要包含任何JSON
+2. 使用段落标题创建二级标题（## 标题）
+3. 每个段落的内容使用paragraph_latest_state字段
+4. 在报告开头添加一个主标题
+5. 如果没有结论段落，在末尾添加一个结论部分
+6. 确保输出是纯Markdown格式，可以直接渲染
+
+<span class="comment"># 研究报告标题
+
+## 段落1标题
+段落1的详细内容...
+
+## 段落2标题
+段落2的详细内容...</span></div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Summary -->
+        <div class="slide light">
+            <div class="slide-content">
+                <div class="large-text" style="color: #000; margin-bottom: 60px;">用计算换质量<br>用流程换可信度</div>
+                <p style="color: #000; margin-top: 60px; font-size: 26px;">最适合的场景：</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; margin-top: 60px; max-width: 900px;">
+                    <div style="text-align: center;">
+                        <p style="font-size: 20px; font-weight: 600; margin-bottom: 10px; color: #000;">高价值</p>
+                        <p style="font-size: 16px; opacity: 0.7; color: #000;">决策支持</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <p style="font-size: 20px; font-weight: 600; margin-bottom: 10px; color: #000;">高复杂度</p>
+                        <p style="font-size: 16px; opacity: 0.7; color: #000;">需要拆解</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <p style="font-size: 20px; font-weight: 600; margin-bottom: 10px; color: #000;">高准确率</p>
+                        <p style="font-size: 16px; opacity: 0.7; color: #000;">不容出错</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Q&A -->
+        <div class="slide dark">
+            <div class="slide-content">
+                <h1>Q&A</h1>
+                <p class="subtitle">欢迎交流与讨论</p>
+                <p style="margin-top: 80px; font-size: 18px; opacity: 0.6;">GitHub: apetoo/spring-ai-demo/deep-search-agent</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn" id="prevBtn">← 上一页</button>
+        <button class="btn" id="nextBtn">下一页 →</button>
+    </div>
+
+    <!-- Slide Counter -->
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">17</span>
+    </div>
+
+    <!-- Keyboard Hint -->
+    <div class="keyboard-hint">
+        使用 ← → 或空格键导航
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[n].classList.add('active');
+            document.getElementById('currentSlide').textContent = n + 1;
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', nextSlide);
+        document.getElementById('prevBtn').addEventListener('click', prevSlide);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+
+        showSlide(0);
+    </script>
+</body>
+</html>
