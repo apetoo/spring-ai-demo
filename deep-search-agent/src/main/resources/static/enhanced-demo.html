@@ -530,6 +530,42 @@
                     return;
                 }
                 
+                // 处理搜索查询生成（包含思考过程）
+                if (data.includes('SEARCH_QUERY_GENERATED_START')) {
+                    let buffer = data;
+                    // 如果数据不完整，可能需要累积，这里简化处理，假设一次性发送或通过结束标记判断
+                    if (data.includes('SEARCH_QUERY_GENERATED_END')) {
+                         parseAndDisplaySearchQuery(buffer);
+                    } else {
+                         // 简单的累积逻辑，实际可能需要更复杂的buffer处理
+                         this.searchQueryBuffer = (this.searchQueryBuffer || '') + data + '\n';
+                    }
+                } else if (this.searchQueryBuffer && (data.includes('SEARCH_QUERY_GENERATED_END') || this.searchQueryBuffer.includes('SEARCH_QUERY_GENERATED_START'))) {
+                    this.searchQueryBuffer += data + '\n';
+                    if (data.includes('SEARCH_QUERY_GENERATED_END')) {
+                        parseAndDisplaySearchQuery(this.searchQueryBuffer);
+                        this.searchQueryBuffer = '';
+                    }
+                    return;
+                }
+
+                // 处理反思分析（包含思考过程）
+                if (data.includes('REFLECTION_ANALYSIS_START')) {
+                    let buffer = data;
+                     if (data.includes('REFLECTION_ANALYSIS_END')) {
+                         parseAndDisplayReflectionAnalysis(buffer);
+                    } else {
+                         this.reflectionAnalysisBuffer = (this.reflectionAnalysisBuffer || '') + data + '\n';
+                    }
+                } else if (this.reflectionAnalysisBuffer && (data.includes('REFLECTION_ANALYSIS_END') || this.reflectionAnalysisBuffer.includes('REFLECTION_ANALYSIS_START'))) {
+                    this.reflectionAnalysisBuffer += data + '\n';
+                    if (data.includes('REFLECTION_ANALYSIS_END')) {
+                        parseAndDisplayReflectionAnalysis(this.reflectionAnalysisBuffer);
+                        this.reflectionAnalysisBuffer = '';
+                    }
+                    return;
+                }
+                
                 // 处理不同类型的消息
                 if (data.includes('📋 正在生成报告结构')) {
                     handleStructureGeneration();
@@ -894,6 +930,63 @@
             updateStepCardWithSearchResults(currentParagraphId, query, results, isReflectionSearch);
         }
 
+        function parseAndDisplaySearchQuery(buffer) {
+            if (!currentParagraphId) return;
+            const contentDiv = document.getElementById(`content-${currentParagraphId}`);
+            if (!contentDiv) return;
+
+            let query = '';
+            let reasoning = '';
+            
+            const lines = buffer.split('\n');
+            for (let line of lines) {
+                if (line.startsWith('查询:')) query = line.split(':')[1].trim();
+                else if (line.startsWith('思考:')) reasoning = line.split(':')[1].trim();
+            }
+            
+            const html = `
+                <div class="reasoning-info">
+                    <strong>🤔 思考过程:</strong> ${reasoning}
+                </div>
+                <div class="query-info">
+                    <strong>🔍 生成查询:</strong> ${query}
+                </div>
+            `;
+            
+            if (contentDiv.innerText.includes('详细信息将在这里显示...')) {
+                contentDiv.innerHTML = html;
+            } else {
+                contentDiv.innerHTML += html;
+            }
+        }
+
+        function parseAndDisplayReflectionAnalysis(buffer) {
+            if (!currentParagraphId) return;
+            const contentDiv = document.getElementById(`content-${currentParagraphId}`);
+            if (!contentDiv) return;
+
+            let query = '';
+            let reasoning = '';
+            
+            const lines = buffer.split('\n');
+            for (let line of lines) {
+                if (line.startsWith('反思查询:')) query = line.split(':')[1].trim();
+                else if (line.startsWith('思考:')) reasoning = line.split(':')[1].trim();
+            }
+            
+            const html = `
+                <div style="margin-top: 15px; border-top: 1px dashed #dee2e6; padding-top: 15px;"></div>
+                <div class="reasoning-info" style="background-color: #e8f5e9; border-color: #c8e6c9;">
+                    <strong>🤔 反思思考:</strong> ${reasoning}
+                </div>
+                <div class="query-info" style="background-color: #f1f8e9; border-color: #dcedc8;">
+                    <strong>🔍 反思查询:</strong> ${query}
+                </div>
+            `;
+            
+            contentDiv.innerHTML += html;
+        }
+
         function truncateText(text, maxLength = 50) {
             if (!text) return '';
             if (text.length <= maxLength) return text;
@@ -904,13 +997,15 @@
             const contentDiv = document.getElementById(`content-${paragraphId}`);
             if (!contentDiv) return;
             
+            // 如果还有占位符，先清空
+            if (contentDiv.innerText.includes('详细信息将在这里显示...')) {
+                contentDiv.innerHTML = '';
+            }
+
             const searchType = isReflection ? '反思搜索' : '初次搜索';
             const searchHtml = `
-                <div class="query-info">
-                    <strong>${searchType}查询:</strong> ${query}
-                </div>
                 <div class="search-results">
-                    <h4>搜索结果 (${results.length} 条):</h4>
+                    <h4>${searchType}结果 (${results.length} 条):</h4>
                     ${results.map((result, index) => {
                         const shortContent = truncateText(result.content, 50);
                         const resultId = `result-${paragraphId}-${isReflection ? 'reflection' : 'initial'}-${index}`;
@@ -938,13 +1033,8 @@
                 </div>
             `;
             
-            if (isReflection) {
-                // 如果是反思搜索，追加到现有内容
-                contentDiv.innerHTML += searchHtml;
-            } else {
-                // 如果是初次搜索，替换内容
-                contentDiv.innerHTML = searchHtml;
-            }
+            // 始终追加内容，不再替换，因为可能已经有思考过程了
+            contentDiv.innerHTML += searchHtml;
         }
 
         function toggleFullContent(resultId) {

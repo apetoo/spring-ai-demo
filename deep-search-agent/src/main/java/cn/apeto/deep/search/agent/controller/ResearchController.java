@@ -1,6 +1,7 @@
 package cn.apeto.deep.search.agent.controller;
 
 import cn.apeto.deep.search.agent.service.ResearchService;
+import cn.apeto.deep.search.agent.service.ResearchSyncService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Flux;
 public class ResearchController {
 
     private final ResearchService researchService;
+    private final ResearchSyncService researchSyncService;
 
     /**
      * 流式返回研究过程
@@ -30,6 +32,6 @@ public class ResearchController {
 
     @GetMapping("/sync")
     public String researchSync(@RequestParam String query) {
-        return researchService.researchSync(query);
+        return researchSyncService.research(query);
     }
 }
